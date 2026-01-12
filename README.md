@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Vertical Reels - Next.js + Supabase
 
-## Getting Started
+A TikTok-like vertical video feed application built with Next.js and Supabase.
 
-First, run the development server:
+## Features
+
+- 📱 Vertical video feed (TikTok-style scrolling)
+- 🎥 Video upload to Supabase Storage
+- 🔐 Authentication with Supabase Auth
+- 📊 Video metadata management
+- 🎨 Modern UI with Tailwind CSS
+
+## Setup
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Configure Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xvqncrmtwddckrfzzxos.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh2cW5jcm10d2RkY2tyZnp6eG9zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjgyMDI0NTIsImV4cCI6MjA4Mzc3ODQ1Mn0.wNCejFgaf30xGmJ_MDN__8pszweQWAdXod1tfRBstag
+
+# Optional: For admin operations
+# SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+```
+
+### 3. Set Up Supabase Storage
+
+1. Go to your Supabase dashboard: https://supabase.com/dashboard/project/xvqncrmtwddckrfzzxos/storage/buckets
+2. Create a storage bucket named `videos`
+3. Make it public (or configure RLS policies as needed)
+
+### 4. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+vertical-reels-nextjs/
+├── app/
+│   ├── api/              # API routes
+│   │   ├── videos/       # Video CRUD operations
+│   │   └── upload-url/   # Signed upload URL generation
+│   ├── auth/             # Authentication page
+│   ├── upload/            # Video upload page
+│   ├── layout.tsx         # Root layout
+│   ├── page.tsx           # Feed page (home)
+│   └── providers.tsx      # React Query provider
+├── components/
+│   ├── ui/                # UI components (Button, Input, Toast)
+│   ├── VideoPlayer.tsx    # Video player component
+│   └── Navbar.tsx         # Navigation bar
+├── hooks/
+│   ├── use-auth.ts        # Authentication hook
+│   ├── use-videos.ts      # Video data hooks
+│   └── use-toast.ts       # Toast notifications
+└── lib/
+    ├── supabase.ts        # Client-side Supabase client
+    ├── supabase-server.ts # Server-side Supabase client
+    └── utils.ts           # Utility functions
+```
 
-## Learn More
+## Database Schema
 
-To learn more about Next.js, take a look at the following resources:
+The `videos` table structure:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `id` (UUID, primary key)
+- `creator_id` (TEXT) - User ID from Supabase Auth
+- `video_url` (TEXT) - URL to video in Supabase Storage
+- `thumbnail_url` (TEXT, optional)
+- `description` (TEXT, optional)
+- `aspect_ratio` (TEXT, optional)
+- `duration` (INTEGER, optional)
+- `created_at` (TIMESTAMP)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## API Routes
 
-## Deploy on Vercel
+### GET `/api/videos`
+Fetch videos with optional pagination:
+- `cursor` (query param): Timestamp cursor for pagination
+- `limit` (query param): Number of videos to fetch (default: 10)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### POST `/api/videos`
+Create a new video record:
+```json
+{
+  "creator_id": "user-id",
+  "video_url": "https://...",
+  "description": "Video caption",
+  "duration": 30,
+  "aspect_ratio": "9:16"
+}
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### POST `/api/upload-url`
+Get a signed URL for uploading to Supabase Storage:
+```json
+{
+  "filename": "video.mp4",
+  "contentType": "video/mp4"
+}
+```
+
+## Technologies
+
+- **Next.js 16** - React framework
+- **Supabase** - Backend (Database, Storage, Auth)
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **React Query** - Data fetching
+- **Framer Motion** - Animations
+
+## Development
+
+```bash
+# Development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm start
+```
+
+## Notes
+
+- Videos are stored in Supabase Storage bucket named `videos`
+- Authentication uses Supabase Auth
+- The app uses server-side Supabase client for API routes
+- Client-side uses the anon key for user operations

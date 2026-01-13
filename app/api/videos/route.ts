@@ -34,7 +34,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data || []);
   } catch (error) {
-    console.error("Error fetching videos:", error);
     return NextResponse.json(
       { message: "Failed to fetch videos" },
       { status: 500 }
@@ -80,7 +79,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(data, { status: 201 });
   } catch (error: any) {
-    console.error("Error creating video:", error);
     return NextResponse.json(
       { message: error.message || "Internal server error" },
       { status: 500 }

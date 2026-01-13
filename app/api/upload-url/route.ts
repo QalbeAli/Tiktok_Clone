@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
       path: uniquePath,
     });
   } catch (error: any) {
-    console.error("Upload URL error:", error);
     return NextResponse.json(
       { message: error.message || "Failed to generate upload URL" },
       { status: 500 }
